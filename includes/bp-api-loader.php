@@ -48,6 +48,8 @@ if ( ! class_exists( 'Vibe_BP_API' ) ) {
 			//if(isset($tips) && isset($tips->lms_settings) && isset($tips->lms_settings['api']) && isset($tips->lms_settings['api']['api'])){
 		
 			require_once dirname( __FILE__ ) . '/class-api-controller.php';
+			require_once dirname( __FILE__ ) . '/class.members.php';
+			
 			require_once dirname( __FILE__ ) . '/class-api-members-controller.php';
 
 			/**

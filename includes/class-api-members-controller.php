@@ -54,14 +54,58 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 	    	return false;
 	    }
 
-    	function get_members(){
+    	function get_members($request){
 					
 			$defaults = array(
 				'scope'=>'',
 				'context'=>'',
 
 				);
-			$args = $defaults;
+			$args =array();
+
+    		$items_per_page = apply_filters('vibe_bp_members_items_per_page',20,$args);
+
+    		$active = apply_filters('vibe_bp_members_type','active',$args);
+			$query_defaults = array(
+	    		'type'                => '',
+				'page'                => 1,
+				'per_page'            => $items_per_page,
+				'max'                 => false,
+
+				'page_arg'            => 'upage',  // See https://buddypress.trac.wordpress.org/ticket/3679.
+
+				'include'             => false,    // Pass a user_id or a list (comma-separated or array) of user_ids to only show these users.
+				'exclude'             => false,    // Pass a user_id or a list (comma-separated or array) of user_ids to exclude these users.
+
+				'user_id'             => '', // Pass a user_id to only show friends of this user.
+				'member_type'         => '',
+				'member_type__in'     => '',
+				'member_type__not_in' => '',
+				'search_terms'        => '',
+
+				'meta_key'            => false,    // Only return users with this usermeta.
+				'meta_value'          => false,    // Only return users where the usermeta value matches. Requires meta_key.
+
+				'populate_extras'     => true 
+	    	);
+
+			$filters = urldecode($request['filter']);
+			$filters = json_decode($filters);
+			$filters = (Array)$filters;
+
+			
+    		//make $args based on $filters 
+    		$query_args =array();
+
+
+
+    		if(empty($query_args)){
+    			$query_args = $query_defaults;
+    		}
+
+			wp_parse_args($query_args,$query_defaults);
+
+
 			foreach($defaults as $key=>$value){
 				$args[$key]=$request->get_param($key);
 			}
@@ -70,7 +114,11 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 				//Prepare args
     		//
     		$members = Vibe_BP_API_Members::init();
-    		$members->get_members($args);
+    		$members_response = $members->get_members($query_args);
+
+    		$members_data = apply_filters( 'vibe_bp_api_get_members', $members_response, $request );
+
+			return new WP_REST_Response( $members_data, 200 );
     	}
 
     	function get_member(){
