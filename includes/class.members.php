@@ -47,7 +47,7 @@ class Vibe_BP_API_Members{
 
     	$members =array();
     	wp_parse_args($args,$defaults);
-
+    	
 		if ( bp_has_members( $args ) ) :
 		 	while ( bp_members() ) :  bp_the_member();
 		 		global $members_template;

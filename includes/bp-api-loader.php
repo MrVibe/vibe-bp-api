@@ -49,8 +49,10 @@ if ( ! class_exists( 'Vibe_BP_API' ) ) {
 		
 			require_once dirname( __FILE__ ) . '/class-api-controller.php';
 			require_once dirname( __FILE__ ) . '/class.members.php';
-			
+			require_once dirname( __FILE__ ) . '/class.groups.php';
+
 			require_once dirname( __FILE__ ) . '/class-api-members-controller.php';
+			require_once dirname( __FILE__ ) . '/class-api-groups-controller.php';
 
 			/**
 			 * Fires when all BP COURSE API files are loaded.
@@ -80,6 +82,7 @@ if ( ! class_exists( 'Vibe_BP_API' ) ) {
 
 			$types = array(
 				'members',
+				'groups',
 			);
 
 			/**
@@ -91,12 +94,17 @@ if ( ! class_exists( 'Vibe_BP_API' ) ) {
 			
 			if ( is_array( $types ) && count( $types ) > 0 ) {
 				foreach( $types as $type ) {
-					$type = ucfirst( $type );
-					$class_name = "Vibe_BP_API_Rest_{$type}_Controller";
-					if ( class_exists( $class_name ) ) {
-						$controller = new $class_name( $type );
+					if(bp_is_active($type)){
+						$type = ucfirst( $type );
+						$class_name = "Vibe_BP_API_Rest_{$type}_Controller";
+						if ( class_exists( $class_name ) ) {
+							
+								$controller = new $class_name( $type );
 
-						$controller->register_routes();
+							$controller->register_routes();
+							
+							
+						}
 					}
 				}
 			}
