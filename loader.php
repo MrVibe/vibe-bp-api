@@ -11,6 +11,20 @@
  * License:     GPLv2 or later (license.txt)
  */
 
+if ( !defined( 'ABSPATH' ) ) exit;
+
+
+define('VIBE_BP_API_NAMESPACE','VibeBP/v1');
+/*====== BEGIN INCLUDING FILES ======*/
+
+if(!class_exists('WPLMS_oAuth_Server')){
+    include_once('includes/auth_server/class-api-apps.php');
+    include_once('includes/auth_server/class-api-wp.php');
+    include_once('includes/auth_server/class-apps.php');
+}
+include_once('includes/class.admin.php');
+
+
 /* Only load the component if BuddyPress is loaded and initialized. */
 function vibe_bp_api_init() {
 	// Because our loader file uses BP_Component, it requires BP 1.5 or greater.
