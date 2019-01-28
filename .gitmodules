@@ -1,0 +1,3 @@
+[submodule "BP-REST"]
+	path = BP-REST
+	url = https://mrvibe@github.com/buddypress/BP-REST
