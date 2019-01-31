@@ -283,7 +283,7 @@
 				case 'checkbox':
 					echo '<th scope="row" class="titledesc"><label>'.$setting['label'].'</label></th>';
 					echo '<td class="forminp"><input type="checkbox" name="'.$setting['name'].'" '.(isset($lms_settings[$tab][$setting['name']])?'CHECKED':'').' />';
-					echo '<span>'.$setting['desc'].'</span> ##'.$lms_settings[$tab][$setting['name']];
+					echo '<span>'.$setting['desc'].'</span>';
 				break;
 				case 'number':
 					echo '<th scope="row" class="titledesc"><label>'.$setting['label'].'</label></th>';
