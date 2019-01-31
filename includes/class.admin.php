@@ -6,7 +6,7 @@
 
  class Vibe_BP_Api_Admin{
 
- 	public $option = 'vibe_api_api';
+ 	public $option_name = 'vibe_api_api';
 	public static $instance;
     public static function init(){
         if ( is_null( self::$instance ) )
@@ -99,12 +99,12 @@
 			default:
 				$html = '';
 				ob_start();
-				do_action('lms_api_settings_sub',$_GET);
+				do_action('vibe_bp_api_settings_sub',$_GET);
 				$html = ob_get_clean();
 				if(empty($html)){
 
 				
-					$settings= apply_filters('lms_api_settings',array(
+					$settings= apply_filters('vibe_bp_api_settings',array(
 					array(
 						'label'=>__('WPLMS API Settings','vibe-customtypes' ),
 						'type'=> 'heading',
@@ -199,30 +199,46 @@
 		$app->clients();
 	}
 
+	function get_option(){
+
+		if(empty($this->option)){
+			$this->option = get_option($this->option_name);
+		}
+
+		return $this->option;
+	}
+
+	function update_option($key,$value){
+
+		$this->get_option();
+		$this->option[$key]=$value;
+		update_option($this->option_name,$this->option);
+	}
 
 	function save_settings($tab){
 		if ( !empty($_POST) && check_admin_referer('vibe_bp_api_settings','_wpnonce') ){
 			$settings=array();
 
-			$settings = get_option($this->option);	
+			$settings = $this->get_option($this->option);	
 
 			unset($_POST['_wpnonce']);
 			unset($_POST['_wp_http_referer']);
 			unset($_POST['save']);
 			switch($tab){
 				case 'instructor':
-					$settings['instructor'] = $_POST;
+					$this->update_option($instructor,$_POST);
 				break;
-				case 'auth_server':
-					$lms_settings['auth_server'] = $_POST;
-					$this->update_api_settings($_POST);
+				case 'auth-server':
+					$this->update_option($instructor,$_POST);
 				break;
 			}
+
+			
 		}
 	}
 
 	function update_api_settings($_post){
-		$settings = get_option('lms_settings');
+		$settings = $this->get_option();
 		
 		if(!empty($settings['api']['api_version']) && !empty($_post['api_version']) && $settings['api']['api_version'] != $_post['api_version']){
 			global $wpdb;
@@ -241,7 +257,8 @@
 		echo '<table class="form-table">
 				<tbody>';
 
-		$lms_settings=get_option($this->option);
+
+		$lms_settings=$this->get_option();
 
 		foreach($settings as $setting ){
 			echo '<tr valign="top" '.(empty($setting['class'])?'':'class="'.$setting['class'].'"').'>';

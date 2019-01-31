@@ -19,14 +19,14 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 
 			register_rest_route( $this->namespace, '/members', array(
 				array(
-					'methods'             =>  WP_REST_Server::READABLE,
+					'methods'             =>  'POST',
 					'permission_callback' => array( $this, 'get_members_permissions' ),
 					'callback'            =>  array( $this, 'get_members' ),
 				),
 			));
 			register_rest_route( $this->namespace, '/member/(?P<id>\d+)?', array(
 				array(
-					'methods'             =>  WP_REST_Server::READABLE,
+					'methods'             => 'POST',
 					'callback'            =>  array( $this, 'get_member' ),
 					'permission_callback' => array( $this, 'get_members_permissions' ),
 					'args'                     	=>  array(
@@ -121,8 +121,22 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 			return new WP_REST_Response( $members_data, 200 );
     	}
 
-    	function get_member(){
 
+    	function get_member($request){
+
+    		$id = (int)$request->get_param('id');
+
+
+    		// $data=get_userdata($id);
+    		
+    	
+			// $data= bp_get_profile_field_data( array( 
+			//     'field'   => 'name',
+			//     'user_id' =>  $id
+			// ) );
+    		
+    		return $data;
+    		
     	}
 	}
 }
