@@ -6,7 +6,7 @@
 
  class Vibe_BP_Api_Admin{
 
- 	public $option_name = 'vibe_api_api';
+ 	public $option_name = 'vibe_bp_api';
 	public static $instance;
     public static function init(){
         if ( is_null( self::$instance ) )
@@ -39,9 +39,9 @@
 	    		));
 	    echo '<div id="icon-themes" class="icon32"><br></div>';
 	    echo '<h2 class="nav-tab-wrapper">';
-	    foreach( $tabs as $tab => $name ){
-	        $class = ( $tab == $current ) ? ' nav-tab-active' : '';
-	        echo "<a class='nav-tab$class' href='?page=vibe_bp_api&tab=$tab'>$name</a>";
+	    foreach( $tabs as $active_tab => $name ){
+	        $class = ( $active_tab == $tab ) ? ' nav-tab-active' : '';
+	        echo "<a class='nav-tab$class' href='?page=vibe_bp_api&tab=$active_tab'>$name</a>";
 
 	    }
 	    echo '</h2>';
@@ -50,6 +50,7 @@
 	    if(isset($_POST['save'])){
 			echo $this->save_settings($tab);
 		}		
+
 		switch($tab){
 			case 'auth-server':
 				$this->auth_server();
@@ -165,12 +166,11 @@
 							'desc' => __('Enable Wallet in App.','vibe-customtypes')
 						),
 					));
-					$this->generate_form('api',$settings);
+					$this->generate_form('auth-server',$settings);
 				}else{
 					echo $html;
 				}
 				break;
-			break;
 		}
 
 	}
@@ -226,10 +226,10 @@
 			unset($_POST['save']);
 			switch($tab){
 				case 'instructor':
-					$this->update_option($instructor,$_POST);
+					$this->update_option($tab,$_POST);
 				break;
 				case 'auth-server':
-					$this->update_option($instructor,$_POST);
+					$this->update_option($tab,$_POST);
 				break;
 			}
 
@@ -283,7 +283,7 @@
 				case 'checkbox':
 					echo '<th scope="row" class="titledesc"><label>'.$setting['label'].'</label></th>';
 					echo '<td class="forminp"><input type="checkbox" name="'.$setting['name'].'" '.(isset($lms_settings[$tab][$setting['name']])?'CHECKED':'').' />';
-					echo '<span>'.$setting['desc'].'</span>';
+					echo '<span>'.$setting['desc'].'</span> ##'.$lms_settings[$tab][$setting['name']];
 				break;
 				case 'number':
 					echo '<th scope="row" class="titledesc"><label>'.$setting['label'].'</label></th>';
