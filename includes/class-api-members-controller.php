@@ -46,6 +46,7 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 	    PERMISSIONS
 	     */
 	    function get_members_permissions($request){
+	    	return true;
 	    	
 	    	if($request->get_param('client_id') == 'abc'){
 	    		return true;
@@ -124,18 +125,17 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 
     	function get_member($request){
 
-    		$id = (int)$request->get_param('id');
+    		$id = (int)$request->get_param('id');	 // get param data 'id'
+    		
+    		$member_details=array();
+    		$filter=array();     					 // filteration purpose
 
 
-    		// $data=get_userdata($id);
-    		
-    	
-			// $data= bp_get_profile_field_data( array( 
-			//     'field'   => 'name',
-			//     'user_id' =>  $id
-			// ) );
-    		
-    		return $data;
+    		$member_details= get_userdata($id);
+
+
+    		$data=apply_filters( 'vibe_bp_api_get_member', $member_details, $filter );
+			return new WP_REST_Response( $data, 200 );
     		
     	}
 	}
