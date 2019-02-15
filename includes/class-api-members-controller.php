@@ -97,6 +97,20 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 					),
 				),
 			));
+			register_rest_route( $this->namespace, '/rejectfriendship/(?P<friendship_id>\d+)?/', array(
+				array(
+					'methods'             => 'POST',
+					'callback'            =>  array( $this, 'vibe_friends_reject_friendship' ),
+					'permission_callback' => array( $this, 'get_members_permissions' ),
+					'args'                     	=>  array(
+						'id'                       	=>  array(
+							'validate_callback'     =>  function( $param, $request, $key ) {
+														return is_numeric( $param );
+													}
+						),
+					),
+				),
+			));
 
 
 			register_rest_route( $this->namespace, '/check/', array(
@@ -281,24 +295,32 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
 */    	
 
     	function vibe_friends_accept_friendship($request){
-    			// return BP_Friends_Friendship::get_friendship_ids_for_user($id=4);
-    			// return friends_get_friendship_id(20,4);
-
+    		
     		$friendship_id = (int)$request->get_param('friendship_id');	 // get param data 'friendship_id'
+    	    $filter=array();
 
-
-    		// $acceptfriendship=friends_accept_friendship($friendship_id);
-    	 //    $filter=array();
     		global $wpdb;
-
 			$bp = buddypress();
-
 			$acceptfriendship= $wpdb->query( $wpdb->prepare( "UPDATE {$bp->friends->table_name} SET is_confirmed = 1, date_created = %s WHERE id = %d" , bp_core_current_time(), $friendship_id ) );
 
 
     		$data=apply_filters( 'vibe_bp_api_get_friends', $acceptfriendship, $filter );
 			return new WP_REST_Response( $data, 200 );    	// return 1 or 0 
 
+    	}
+
+    	function vibe_friends_reject_friendship($request){
+
+    		$friendship_id = (int)$request->get_param('friendship_id');	 // get param data 'friendship_id'
+    		$filter=array();
+
+    		global $wpdb;
+			$bp = buddypress();
+
+			$rejectfriendship= $wpdb->query( $wpdb->prepare( "DELETE FROM {$bp->friends->table_name} WHERE id = %d", $friendship_id) );
+
+			$data=apply_filters( 'vibe_bp_api_get_friends', $rejectfriendship, $filter );
+			return new WP_REST_Response( $data, 200 );    	// return 1 or 0 
     	}
 
 
