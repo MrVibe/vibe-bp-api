@@ -41,7 +41,7 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 			register_rest_route( $this->namespace, '/friends/(?P<id>\d+)?/(?P<per_page>\d+)?/(?P<page_no>\d+)?', array(
 				array(
 					'methods'             => 'POST',
-					'callback'            =>  array( $this, 'get_friends' ),
+					'callback'            =>  array( $this, 'vibe_bp_api_get_friends' ),
 					'permission_callback' => array( $this, 'get_members_permissions' ),
 					'args'                     	=>  array(
 						'id'                       	=>  array(
@@ -56,7 +56,7 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 			register_rest_route( $this->namespace, '/addfriendship/(?P<initiator_userid>\d+)?/(?P<friend_userid>\d+)?', array(
 				array(
 					'methods'             => 'POST',
-					'callback'            =>  array( $this, 'friends_add_friend' ),
+					'callback'            =>  array( $this, 'vibe_bp_api_friends_add_friend' ),
 					'permission_callback' => array( $this, 'get_members_permissions' ),
 					'args'                     	=>  array(
 						'id'                       	=>  array(
@@ -71,7 +71,7 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 			register_rest_route( $this->namespace, '/removefriendship/(?P<initiator_userid>\d+)?/(?P<friend_userid>\d+)?', array(
 				array(
 					'methods'             => 'POST',
-					'callback'            =>  array( $this, 'friends_remove_friend' ),
+					'callback'            =>  array( $this, 'vibe_bp_api_friends_remove_friend' ),
 					'permission_callback' => array( $this, 'get_members_permissions' ),
 					'args'                     	=>  array(
 						'id'                       	=>  array(
@@ -86,7 +86,7 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 			register_rest_route( $this->namespace, '/acceptfriendship/(?P<friendship_id>\d+)?/', array(
 				array(
 					'methods'             => 'POST',
-					'callback'            =>  array( $this, 'vibe_friends_accept_friendship' ),
+					'callback'            =>  array( $this, 'vibe_bp_api_friends_accept_friendship' ),
 					'permission_callback' => array( $this, 'get_members_permissions' ),
 					'args'                     	=>  array(
 						'id'                       	=>  array(
@@ -100,7 +100,7 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 			register_rest_route( $this->namespace, '/rejectfriendship/(?P<friendship_id>\d+)?/', array(
 				array(
 					'methods'             => 'POST',
-					'callback'            =>  array( $this, 'vibe_friends_reject_friendship' ),
+					'callback'            =>  array( $this, 'vibe_bp_api_friends_reject_friendship' ),
 					'permission_callback' => array( $this, 'get_members_permissions' ),
 					'args'                     	=>  array(
 						'id'                       	=>  array(
@@ -216,25 +216,25 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
     	function get_member($request){
 
     		$id = (int)$request->get_param('id');	 // get param data 'id'
-    		return $this->get_member_by_id($id);
+    		return $this->vibe_bp_api_get_member_by_id($id);
     		
     		
     	}
 
-    	function get_member_by_id($id){
+    	function vibe_bp_api_get_member_by_id($id){
 
     		$member_details=array();
     		$filter=array();     					 // filteration purpose
 
     		$member_details= get_userdata($id);
 
-    		$data=apply_filters( 'vibe_bp_api_get_member', $member_details, $filter );
+    		$data=apply_filters( 'vibe_bp_api_get_member_by_id', $member_details, $filter );
 			return new WP_REST_Response( $data, 200 );
     		
     	}
 
 
-    	function get_friends($request){
+    	function vibe_bp_api_get_friends($request){
 
     		$id = (int)$request->get_param('id');	 // get param data 'id'
     		$per_page= (int)$request->get_param('per_page');	 // get param data 'per_page'
@@ -250,19 +250,19 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
     	}
 
     	// for sending frienship request get true if send else false
-    	function friends_add_friend($request){
+    	function vibe_bp_api_friends_add_friend($request){
 
     		$initiator_userid = (int)$request->get_param('initiator_userid');	 // get param data 'initiator_userid'
     		$friend_userid= (int)$request->get_param('friend_userid');	 // get param data 'friend_userid'
     		
     		$friends_add_friend=friends_add_friend($initiator_userid,$friend_userid,false);    //return bool 
 
-    		$data=apply_filters( 'vibe_bp_api_get_friends', $friends_add_friend, $filter );
+    		$data=apply_filters( 'vibe_bp_api_friends_add_friend', $friends_add_friend, $filter );
 			return new WP_REST_Response( $data, 200 );    	
 
     	}
 
-    	function friends_remove_friend($request){
+    	function vibe_bp_api_friends_remove_friend($request){
 
 
     		$initiator_userid = (int)$request->get_param('initiator_userid');	 // get param data 'initiator_userid'
@@ -271,7 +271,7 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
     		$friends_remove_friend=friends_add_friend($initiator_userid,$friend_userid);
 
 
-    		$data=apply_filters( 'vibe_bp_api_get_friends', $friends_remove_friend, $filter );
+    		$data=apply_filters( 'vibe_bp_api_friends_remove_friend', $friends_remove_friend, $filter );
 			return new WP_REST_Response( $data, 200 );    	
 
 
@@ -294,7 +294,7 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
 
 */    	
 
-    	function vibe_friends_accept_friendship($request){
+    	function vibe_bp_api_friends_accept_friendship($request){
     		
     		$friendship_id = (int)$request->get_param('friendship_id');	 // get param data 'friendship_id'
     	    $filter=array();
@@ -309,7 +309,7 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
 
     	}
 
-    	function vibe_friends_reject_friendship($request){
+    	function vibe_bp_api_friends_reject_friendship($request){
 
     		$friendship_id = (int)$request->get_param('friendship_id');	 // get param data 'friendship_id'
     		$filter=array();
@@ -321,6 +321,37 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
 
 			$data=apply_filters( 'vibe_bp_api_get_friends', $rejectfriendship, $filter );
 			return new WP_REST_Response( $data, 200 );    	// return 1 or 0 
+    	}
+
+    	// which friendship id for user
+    	function vibe_friends_get_friendship_ids_for_user($user_id,$is_confirmed){
+    		
+    		$user_id=1;
+    		$is_confirmed=1;
+
+	    	global $wpdb;
+
+			$bp = buddypress();
+
+			$friendship_ids = $wpdb->get_col( $wpdb->prepare( "SELECT id  FROM {$bp->friends->table_name} WHERE (initiator_user_id = %d OR friend_user_id = %d) AND (is_confirmed=%d)  ORDER BY date_created DESC", $user_id, $user_id ,$is_confirmed ) );
+
+			return $friendship_ids;
+    	
+    	}
+
+
+// friend id who  is request to this user;
+    	function vibe_friends_get_friendId_request_ids_for_user($user_id){
+
+    			return BP_Friends_Friendship::get_friendship_request_user_ids($user_id);
+
+    	}
+    			
+
+
+
+    	function checkfuction($user_id){
+
     	}
 
 
