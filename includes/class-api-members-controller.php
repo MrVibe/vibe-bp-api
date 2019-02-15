@@ -127,6 +127,20 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
 					),
 				),
 			));
+			register_rest_route( $this->namespace, '/requset/(?P<user_id>\d+)?/', array(
+				array(
+					'methods'             => 'POST',
+					'callback'            =>  array( $this, 'vibe_friends_get_friendId_request_ids_for_user' ),
+					'permission_callback' => array( $this, 'get_members_permissions' ),
+					'args'                     	=>  array(
+						'id'                       	=>  array(
+							'validate_callback'     =>  function( $param, $request, $key ) {
+														return is_numeric( $param );
+													}
+						),
+					),
+				),
+			));
 
 
 		}
@@ -226,11 +240,16 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
     		$member_details=array();
     		$filter=array();     					 // filteration purpose
 
-    		$member_details= get_userdata($id);
+    		$member_details= $this->vibe_bp_api_get_member_by_id_response($id);
 
-    		$data=apply_filters( 'vibe_bp_api_get_member_by_id', $member_details, $filter );
-			return new WP_REST_Response( $data, 200 );
     		
+			$data=apply_filters( 'vibe_bp_api_get_member_by_id', $member_details, $filter );
+			return new WP_REST_Response( $data, 200 );	
+    		
+    		
+    	}
+    	function vibe_bp_api_get_member_by_id_response($id){
+	    	return get_userdata($id);
     	}
 
 
@@ -268,7 +287,7 @@ if ( ! class_exists( 'VIBE_BP_API_Rest_Members_Controller' ) ) {
     		$initiator_userid = (int)$request->get_param('initiator_userid');	 // get param data 'initiator_userid'
     		$friend_userid= (int)$request->get_param('friend_userid');	 // get param data 'friend_userid'
 
-    		$friends_remove_friend=friends_add_friend($initiator_userid,$friend_userid);
+    		$friends_remove_friend=friends_remove_friend($initiator_userid,$friend_userid);
 
 
     		$data=apply_filters( 'vibe_bp_api_friends_remove_friend', $friends_remove_friend, $filter );
@@ -323,27 +342,43 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
 			return new WP_REST_Response( $data, 200 );    	// return 1 or 0 
     	}
 
-    	// which friendship id for user
+    	// fetch friendship id for user
     	function vibe_friends_get_friendship_ids_for_user($user_id,$is_confirmed){
     		
-    		$user_id=1;
-    		$is_confirmed=1;
 
 	    	global $wpdb;
 
 			$bp = buddypress();
 
-			$friendship_ids = $wpdb->get_col( $wpdb->prepare( "SELECT id  FROM {$bp->friends->table_name} WHERE (initiator_user_id = %d OR friend_user_id = %d) AND (is_confirmed=%d)  ORDER BY date_created DESC", $user_id, $user_id ,$is_confirmed ) );
+			$friendship_ids = $wpdb->get_results( $wpdb->prepare( "SELECT id, initiator_user_id  FROM {$bp->friends->table_name} WHERE (initiator_user_id = %d OR friend_user_id = %d) AND (is_confirmed=%d)  ORDER BY date_created DESC", $user_id, $user_id ,$is_confirmed ) );
 
 			return $friendship_ids;
     	
     	}
 
 
-// friend id who  is request to this user;
-    	function vibe_friends_get_friendId_request_ids_for_user($user_id){
+		// friend id who  is request to this user;
+    	function vibe_friends_get_friendId_request_ids_for_user($request){
+    	
+    		$id = (int)$request->get_param('user_id');	 // get param data 'user_id'
+    	    $filter=array();
+    	    $data=array();
+    	    $user_details=array();
 
-    			return BP_Friends_Friendship::get_friendship_request_user_ids($user_id);
+    	    $initiator_friendship_ids=$this-> vibe_friends_get_friendship_ids_for_user($id,0);
+    	    
+    	   
+    		foreach ($initiator_friendship_ids as $initiator_friendship_id) {
+
+    			 $user_details[]=array(
+    			 	'friendship_id'=>(int)$initiator_friendship_id->id,
+    			 	'user_detail'=>$this->vibe_bp_api_get_member_by_id_response((int)$initiator_friendship_id->initiator_user_id),
+    			 );
+
+    		}
+
+    		$data=apply_filters( 'vibe_bp_api_friends_remove_friend', $user_details, $filter );
+			return new WP_REST_Response( $data, 200 );   
 
     	}
     			
@@ -351,7 +386,8 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
 
 
     	function checkfuction($user_id){
-
+    		
+    		
     	}
 
 
