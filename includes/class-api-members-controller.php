@@ -323,6 +323,7 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
 			$acceptfriendship= $wpdb->query( $wpdb->prepare( "UPDATE {$bp->friends->table_name} SET is_confirmed = 1, date_created = %s WHERE id = %d" , bp_core_current_time(), $friendship_id ) );
 
 
+
     		$data=apply_filters( 'vibe_bp_api_get_friends', $acceptfriendship, $filter );
 			return new WP_REST_Response( $data, 200 );    	// return 1 or 0 
 
@@ -357,7 +358,7 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
     	}
 
 
-		// friend id who  is request to this user;
+		// friend id and friendship id who  is request to this user;
     	function vibe_friends_get_friendId_request_ids_for_user($request){
     	
     		$id = (int)$request->get_param('user_id');	 // get param data 'user_id'
@@ -386,9 +387,29 @@ friends_accept_friendship() ->  BP_Friends_Friendship::accept()     bp_loggedin_
 
 
     	function checkfuction($user_id){
+
+		    $args =array(
+				'group_id'     => 0,
+				'creator_id'   => 1,
+				'name'         => 'vibe_group_api',
+				'description'  => 'vibe_group_api',
+				'slug'         => 'vibe_group_api',
+				'status'       => null,
+				'parent_id'    => null,
+				'enable_forum' => 1,
+				'date_created' => null
+			);
+
+    		return groups_create_group($args);
     		
-    		
+    		// // return groups_get_group(1);
+    		// return groups_total_groups_for_user(1);
+    		// return groups_get_user_groups(1,0,2);
+    		// return groups_get_total_group_count();
+    		// return groups_get_total_member_count(2);
     	}
+
+    	
 
 
 	}
