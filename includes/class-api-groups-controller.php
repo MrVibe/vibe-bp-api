@@ -27,7 +27,7 @@ if ( ! class_exists( 'Vibe_BP_API_Rest_Groups_Controller' ) ) {
 			register_rest_route( $this->namespace, '/group/(?P<group_id>\d+)?', array(
 				array(
 					'methods'             =>  'POST',
-					'callback'            =>  array( $this, 'get_group_by_id' ),
+					'callback'            =>  array( $this, 'vibe_bp_api_get_group_by_id' ),
 					'permission_callback' => array( $this, 'get_groups_permissions' ),
 					'args'                     	=>  array(
 						'id'                       	=>  array(
@@ -39,7 +39,7 @@ if ( ! class_exists( 'Vibe_BP_API_Rest_Groups_Controller' ) ) {
 				),
 			));
 
-			register_rest_route( $this->namespace, '/create_update/', array(
+			register_rest_route( $this->namespace, '/create_update_group/', array(
 				array(
 					'methods'             =>  'POST',
 					'callback'            =>  array( $this, 'vibe_bp_api_groups_create_group'),
@@ -53,6 +53,37 @@ if ( ! class_exists( 'Vibe_BP_API_Rest_Groups_Controller' ) ) {
 					),
 				),
 			));
+
+			register_rest_route( $this->namespace, '/delete_group/(?P<group_id>\d+)?', array(
+				array(
+					'methods'             =>  'POST',
+					'callback'            =>  array( $this, 'vibe_bp_api_groups_delete_group'),
+					'permission_callback' => array( $this, 'get_groups_permissions' ),
+					'args'                     	=>  array(
+						'id'                       	=>  array(
+							'validate_callback'     =>  function( $param, $request, $key ) {
+														return is_numeric( $param );
+													}
+						),
+					),
+				),
+			));
+			register_rest_route( $this->namespace, '/checkgroup/', array(
+				array(
+					'methods'             =>  'POST',
+					'callback'            =>  array( $this, 'checkfunction'),
+					'permission_callback' => array( $this, 'get_groups_permissions' ),
+					'args'                     	=>  array(
+						'id'                       	=>  array(
+							'validate_callback'     =>  function( $param, $request, $key ) {
+														return is_numeric( $param );
+													}
+						),
+					),
+				),
+			));
+
+
 
 		}
 
@@ -140,7 +171,7 @@ if ( ! class_exists( 'Vibe_BP_API_Rest_Groups_Controller' ) ) {
 			return new WP_REST_Response( $groups_data, 200 );
     	}
 
-    	function get_group_by_id($request){
+    	function vibe_bp_api_get_group_by_id($request){
     		$group_id = (int)$request->get_param('group_id');	
 
     		return groups_get_group( $group_id );
@@ -182,18 +213,60 @@ if ( ! class_exists( 'Vibe_BP_API_Rest_Groups_Controller' ) ) {
 				'status'       => $_POST['status'],
 				'parent_id'    => $_POST['parent_id'],
 				'enable_forum' => $_POST['enable_forum'],
-				'date_created' => $_POST['groudate_createdp_id']
+				'date_created' => $_POST['date_created']
 			);
-			// return $args;
+			
     		$filter=array();
     		$data=array();
-    		return  groups_create_group($args);
-   //  		$group_create_response= groups_create_group($args);
-   //  		// return  $group_create_response;
+    		
+    		$group_create_response= groups_create_group($args);
+    	
 
-   //  		$data=apply_filters( 'vibe_bp_api_groups_create_group', $group_create_response, $filter );
-			// return new WP_REST_Response( $data, 200 );   
+    		$data=apply_filters( 'vibe_bp_api_groups_create_group', $group_create_response, $filter );
+			return new WP_REST_Response( $data, 200 );   
 
     	}
+
+
+
+/**
+ * Delete a group and all of its associated metadata.
+ *
+ * @since 1.0.0
+ *
+ * @param int $group_id ID of the group to delete.
+ * @return bool True on success, false on failure.
+ */
+
+    	function vibe_bp_api_groups_delete_group($request){
+			$group_id = (int)$request->get_param('group_id');	 // get param data 'group_id
+			$filter=array();
+    		$data=array();
+			
+    	    $group_delete_response=groups_delete_group( $group_id );
+
+    		$data=apply_filters( 'vibe_bp_api_groups_delete_group', $group_delete_response, $filter );
+			return new WP_REST_Response( $data, 200 );   
+
+    	}
+
+    	function checkfunction($request){
+    		$args=array(
+    			'group_id'=> 3,
+    		);
+    		
+    		// return groups_get_group_members( $args );
+
+    		return groups_get_user_groups(1);
+
+
+    	}
+
+
+
+
+
+
+
 	}
 }
